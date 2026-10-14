@@ -1,0 +1,314 @@
+def cadastrar_produtos():
+    produtos = []
+    print("=== Cadastro de Produtos ===")
+    print("Digite 'fim' no campo nome para encerrar o cadastro.\n")
+
+    while True:
+        nome = input("Nome do produto: ").strip()
+        if nome.lower() == "fim":
+            break
+
+        preco_texto = input("Preço do produto: R$ ").strip().replace(",", ".")
+        try:
+            preco = float(preco_texto)
+        except ValueError:
+            print("Preço inválido. Use apenas números (ex: 45.90).\n")
+            continue
+
+        categoria = input("Categoria do produto: ").strip()
+
+        produtos.append((nome, preco, categoria))
+        print(f"✓ {nome} cadastrado com sucesso!\n")
+
+    return produtos
+
+
+def filtrar_por_preco(produtos, valor, acima=True):
+    if acima:
+        return [produto for produto in produtos if produto[1] > valor]
+    return [produto for produto in produtos if produto[1] < valor]
+
+
+def ordenar_crescente(produtos):
+    produtos.sort(key=lambda produto: produto[1])
+    return produtos
+
+
+def ordenar_decrescente(produtos):
+    return sorted(produtos, key=lambda produto: produto[1], reverse=True)
+
+
+def categorias_unicas(produtos):
+    return {produto[2] for produto in produtos}
+
+
+def calcular_estatisticas(produtos):
+    precos = [produto[1] for produto in produtos]
+    menor_preco = min(precos)
+    maior_preco = max(precos)
+    preco_medio = sum(precos) / len(precos)
+    return (menor_preco, maior_preco, round(preco_medio, 2))
+
+
+def exibir_produtos(produtos, titulo="Produtos"):
+    print(f"\n--- {titulo} ---")
+    if not produtos:
+        print("Nenhum produto encontrado.")
+        return
+    for nome, preco, categoria in produtos:
+        print(f"{nome:<20} R$ {preco:>8.2f}   [{categoria}]")
+
+
+def exibir_relatorio(produtos):
+    print("\n" + "=" * 50)
+    print("RELATÓRIO FINAL DE PRODUTOS".center(50))
+    print("=" * 50)
+
+    exibir_produtos(produtos, "Todos os produtos cadastrados")
+
+    categorias = categorias_unicas(produtos)
+    print(f"\nCategorias únicas ({len(categorias)}): {', '.join(sorted(categorias))}")
+
+    menor_preco, maior_preco, preco_medio = calcular_estatisticas(produtos)
+    print(f"\nMenor preço : R$ {menor_preco:.2f}")
+    print(f"Maior preço : R$ {maior_preco:.2f}")
+    print(f"Preço médio : R$ {preco_medio:.2f}")
+    print("=" * 50)
+
+
+def exibir_menu():
+    print("\n=== Menu ===")
+    print("1. Listar todos os produtos")
+    print("2. Filtrar produtos acima de um valor")
+    print("3. Filtrar produtos abaixo de um valor")
+    print("4. Ordenar por preço (crescente)")
+    print("5. Ordenar por preço (decrescente)")
+    print("6. Ver categorias únicas")
+    print("7. Ver estatísticas (tupla)")
+    print("8. Relatório final completo")
+    print("0. Sair")
+
+
+def executar_menu(produtos):
+    while True:
+        exibir_menu()
+        opcao = input("Escolha uma opção: ").strip()
+
+        if opcao == "1":
+            exibir_produtos(produtos)
+
+        elif opcao == "2":
+            valor = float(input("Valor de referência: R$ "))
+            resultado = filtrar_por_preco(produtos, valor, acima=True)
+            exibir_produtos(resultado, f"Produtos acima de R$ {valor:.2f}")
+
+        elif opcao == "3":
+            valor = float(input("Valor de referência: R$ "))
+            resultado = filtrar_por_preco(produtos, valor, acima=False)
+            exibir_produtos(resultado, f"Produtos abaixo de R$ {valor:.2f}")
+
+        elif opcao == "4":
+            ordenar_crescente(produtos)
+            exibir_produtos(produtos, "Produtos ordenados (crescente)")
+
+        elif opcao == "5":
+            resultado = ordenar_decrescente(produtos)
+            exibir_produtos(resultado, "Produtos ordenados (decrescente)")
+
+        elif opcao == "6":
+            categorias = categorias_unicas(produtos)
+            print(f"\nCategorias únicas: {categorias}")
+
+        elif opcao == "7":
+            menor_preco, maior_preco, preco_medio = calcular_estatisticas(produtos)
+            print(f"\nMenor: R$ {menor_preco:.2f} | "
+                  f"Maior: R$ {maior_preco:.2f} | "
+                  f"Média: R$ {preco_medio:.2f}")
+
+        elif opcao == "8":
+            exibir_relatorio(produtos)
+
+        elif opcao == "0":
+            print("Encerrando o sistema. Até logo!")
+            break
+
+        else:
+            print("Opção inválida. Tente novamente.")
+
+
+def main():
+    produtos = cadastrar_produtos()
+
+    if not produtos:
+        print("Nenhum produto foi cadastrado. Encerrando o programa.")
+        return
+
+    executar_menu(produtos)
+
+
+if __name__ == "__main__":
+    main()
+
+# ----------------------------------------------------------------------
+
+"""Versão em Portugol"""
+
+# algoritmo "SistemaProdutos"
+# // Desafio Sprint 4 - Versao equivalente em Portugol (VisualG)
+# // Mesma logica do produtos.py, mas usando vetores de tamanho fixo
+# // e lacos "para", ja que Portugol nao tem listas dinamicas,
+# // nem sort()/sorted() nem set() nativos.
+
+# var
+#    // --- "lista" de produtos, simulada com 3 vetores paralelos ---
+#    nomes: vetor[1..50] de caracter
+#    precos: vetor[1..50] de real
+#    categorias: vetor[1..50] de caracter
+#    total: inteiro
+
+#    // --- "conjunto" de categorias unicas, simulado com outro vetor ---
+#    cat_unicas: vetor[1..50] de caracter
+#    total_categorias: inteiro
+
+#    i, j: inteiro
+#    encontrada: logico
+
+#    // variaveis temporarias para a troca no bubble sort
+#    nome_temp: caracter
+#    preco_temp: real
+#    categoria_temp: caracter
+
+#    valor_filtro: real
+
+#    // --- "tupla" de estatisticas, simulada com 3 variaveis separadas ---
+#    menor_preco, maior_preco, soma, preco_medio: real
+
+# inicio
+
+#    // ---------- 1. CADASTRO DE PRODUTOS (equivalente a append()) ----------
+#    // Em Python: produtos.append((nome, preco, categoria)) dentro de um while.
+#    // Em Portugol, com vetor de tamanho fixo, perguntamos quantos produtos
+#    // existem e preenchemos as posicoes 1..total com um laco "para".
+#    escreva("Quantos produtos deseja cadastrar? ")
+#    leia(total)
+
+#    para i de 1 ate total faca
+#       escreva("Nome do produto ", i, ": ")
+#       leia(nomes[i])
+#       escreva("Preco do produto ", i, ": ")
+#       leia(precos[i])
+#       escreva("Categoria do produto ", i, ": ")
+#       leia(categorias[i])
+#    fimpara
+
+#    // ---------- 2. FILTRAGEM POR PRECO ----------
+#    // Em Python: [p for p in produtos if p[1] > valor]
+#    // Em Portugol: percorremos o vetor com um laco e testamos cada posicao.
+#    escreva("Informe um valor para filtrar produtos ACIMA dele: ")
+#    leia(valor_filtro)
+
+#    escreva("--- Produtos acima de ", valor_filtro, " ---")
+#    para i de 1 ate total faca
+#       se (precos[i] > valor_filtro) entao
+#          escreva(nomes[i], " - ", precos[i], " [", categorias[i], "]")
+#       fimse
+#    fimpara
+
+#    // Para "abaixo de um valor" (filtragem inversa), repete o mesmo laco
+#    // trocando a condicao para (precos[i] < valor_filtro).
+
+#    // ---------- 3. ORDENACAO CRESCENTE (equivalente ao sort()) ----------
+#    // Bubble sort: percorre o vetor varias vezes, trocando pares de
+#    // elementos vizinhos que estao fora de ordem, ate tudo ficar ordenado.
+#    // Como os 3 vetores (nomes, precos, categorias) andam juntos, toda
+#    // troca de preco exige trocar tambem o nome e a categoria na mesma
+#    // posicao, para nao "desalinhar" os dados de cada produto.
+#    para i de 1 ate total - 1 faca
+#       para j de 1 ate total - i faca
+#          se (precos[j] > precos[j + 1]) entao
+#             // troca os precos
+#             preco_temp <- precos[j]
+#             precos[j] <- precos[j + 1]
+#             precos[j + 1] <- preco_temp
+
+#             // troca os nomes na mesma posicao
+#             nome_temp <- nomes[j]
+#             nomes[j] <- nomes[j + 1]
+#             nomes[j + 1] <- nome_temp
+
+#             // troca as categorias na mesma posicao
+#             categoria_temp <- categorias[j]
+#             categorias[j] <- categorias[j + 1]
+#             categorias[j + 1] <- categoria_temp
+#          fimse
+#       fimpara
+#    fimpara
+
+#    escreva("--- Produtos ordenados (crescente) ---")
+#    para i de 1 ate total faca
+#       escreva(nomes[i], " - ", precos[i])
+#    fimpara
+
+#    // ---------- ORDENACAO DECRESCENTE (equivalente ao sorted(reverse=True)) ----------
+#    // Mesmo bubble sort acima, mas trocando quando precos[j] < precos[j + 1]
+#    // em vez de precos[j] > precos[j + 1]. Como sorted() nao altera a lista
+#    // original em Python, aqui so mostraríamos o resultado sem perder a
+#    // ordem crescente ja calculada (ou repetiriamos o laco numa copia).
+
+#    // ---------- 4. CONJUNTO DE CATEGORIAS UNICAS (simulacao manual de set) ----------
+#    // Em Python: categorias_unicas = {p[2] for p in produtos}
+#    // Em Portugol nao existe set(), entao simulamos: para cada categoria,
+#    // procuramos se ela ja foi guardada no vetor de unicas; se nao foi
+#    // encontrada, adicionamos; se ja existe, ignoramos (nao duplicamos).
+#    total_categorias <- 0
+
+#    para i de 1 ate total faca
+#       encontrada <- falso
+
+#       para j de 1 ate total_categorias faca
+#          se (categorias[i] = cat_unicas[j]) entao
+#             encontrada <- verdadeiro
+#          fimse
+#       fimpara
+
+#       se (encontrada = falso) entao
+#          total_categorias <- total_categorias + 1
+#          cat_unicas[total_categorias] <- categorias[i]
+#       fimse
+#    fimpara
+
+#    escreva("--- Categorias unicas encontradas (", total_categorias, ") ---")
+#    para i de 1 ate total_categorias faca
+#       escreva(cat_unicas[i])
+#    fimpara
+
+#    // ---------- 5. ESTATISTICAS (equivalente a tupla imutavel) ----------
+#    // Em Python: estatisticas = (min(precos), max(precos), media)
+#    // Em Portugol nao existe tupla; guardamos os 3 valores em variaveis
+#    // separadas que, juntas, representam a mesma informacao fixa.
+#    menor_preco <- precos[1]
+#    maior_preco <- precos[1]
+#    soma <- 0
+
+#    para i de 1 ate total faca
+#       se (precos[i] < menor_preco) entao
+#          menor_preco <- precos[i]
+#       fimse
+#       se (precos[i] > maior_preco) entao
+#          maior_preco <- precos[i]
+#       fimse
+#       soma <- soma + precos[i]
+#    fimpara
+
+#    preco_medio <- soma / total
+
+#    // ---------- 6. RELATORIO FINAL ----------
+#    escreva("")
+#    escreva("===== RELATORIO FINAL =====")
+#    escreva("Total de produtos: ", total)
+#    escreva("Total de categorias unicas: ", total_categorias)
+#    escreva("Menor preco: ", menor_preco)
+#    escreva("Maior preco: ", maior_preco)
+#    escreva("Preco medio: ", preco_medio)
+
+# fimalgoritmo
